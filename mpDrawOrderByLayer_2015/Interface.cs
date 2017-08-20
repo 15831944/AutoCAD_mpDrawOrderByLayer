@@ -1,22 +1,26 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using mpPInterface;
+﻿using System.Collections.Generic;
+using ModPlusAPI.Interfaces;
 
 namespace mpDrawOrderByLayer
 {
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public class Interface : IPluginInterface
+    public class Interface : IModPlusFunctionInterface
     {
-        private const string _Name = "mpDrawOrderByLayer";
-        private const string _AvailCad = "2015";
-        private const string _LName = "Порядок по слою";
-        private const string _Description = "Функция служит для изменения порядка прорисовки согласно слоям";
-        private const string _Author = "Пекшев Александр aka Modis";
-        private const string _Price = "0";
-        public string Name => _Name;
-        public string AvailCad => _AvailCad;
-        public string LName => _LName;
-        public string Description => _Description;
-        public string Author => _Author;
-        public string Price => _Price;
+        public SupportedProduct SupportedProduct => SupportedProduct.AutoCAD;
+        public string Name => "mpDrawOrderByLayer";
+        public string AvailProductExternalVersion => "2015";
+        public string ClassName => string.Empty;
+        public string LName => "Порядок по слою";
+        public string Description => "Функция служит для изменения порядка прорисовки согласно слоям";
+        public string Author => "Пекшев Александр aka Modis";
+        public string Price => "0";
+        public bool CanAddToRibbon => true;
+        public string FullDescription => "Функция обрабатывает слои, отмеченные в окне галочками, изменяя порядок прорисовки согласно порядку отмеченных слоев. Присутствует режим «Авто», который автоматически меняет порядок прорисовки объектов на одном из двух указанных слоев при создании или редактировании";
+        public string ToolTipHelpImage => string.Empty;
+        public List<string> SubFunctionsNames => new List<string>();
+        public List<string> SubFunctionsLames => new List<string>();
+        public List<string> SubDescriptions => new List<string>();
+        public List<string> SubFullDescriptions => new List<string>();
+        public List<string> SubHelpImages => new List<string>();
+        public List<string> SubClassNames => new List<string>();
     }
 }

@@ -14,10 +14,9 @@ using System.Windows.Input;
 using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.EditorInput;
 using Autodesk.AutoCAD.Internal;
-using mpMsg;
-using mpSettings;
-using ModPlus;
-using Exception = System.Exception;
+using ModPlusAPI;
+using ModPlusAPI.Windows;
+using ModPlusAPI.Windows.Helpers;
 using Visibility = System.Windows.Visibility;
 
 // ModPlus
@@ -33,12 +32,7 @@ namespace mpDrawOrderByLayer
         public DrawOrderByLayer()
         {
             InitializeComponent();
-            MpWindowHelpers.OnWindowStartUp(
-                this,
-                MpSettings.GetValue("Settings", "MainSet", "Theme"),
-                MpSettings.GetValue("Settings", "MainSet", "AccentColor"),
-                MpSettings.GetValue("Settings", "MainSet", "BordersType")
-                );
+            this.OnWindowStartUp();
         }
         // Окно загрузилось
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -48,12 +42,12 @@ namespace mpDrawOrderByLayer
             // Проверка расширенных данных и установка начальных значений для режима "Авто"
             CheckXData();
         }
-        private void DrawOrderByLayer_OnMouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+        private void DrawOrderByLayer_OnMouseEnter(object sender, MouseEventArgs e)
         {
             Focus();
         }
 
-        private void DrawOrderByLayer_OnMouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+        private void DrawOrderByLayer_OnMouseLeave(object sender, MouseEventArgs e)
         {
             Utils.SetFocusToDwgView();
         }
@@ -65,10 +59,10 @@ namespace mpDrawOrderByLayer
         private void CheckXData()
         {
             // Проверяем запись о состоянии режима "Авто"
-            if (MpCadHelpers.HasXDataDictionary("MP_DOBLAuto"))
+            if (ModPlus.Helpers.XDataHelpers.HasXDataDictionary("MP_DOBLAuto"))
             {
                 // Если такая запись существует, то проверяем состояние вкл/выкл
-                var doblaStatus = MpCadHelpers.GetStringXData("MP_DOBLAuto");
+                var doblaStatus = ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto");
                 // Если состояние вкл
                 if (doblaStatus.Equals("ON"))
                 {
@@ -83,9 +77,9 @@ namespace mpDrawOrderByLayer
                 }
                 // Независимо от состояния проверяем и выставляем слои
                 // Слой "Вверх"
-                if (MpCadHelpers.HasXDataDictionary("MP_DOBLAuto_up"))
+                if (ModPlus.Helpers.XDataHelpers.HasXDataDictionary("MP_DOBLAuto_up"))
                 {
-                    var doblaUp = MpCadHelpers.GetStringXData("MP_DOBLAuto_up");
+                    var doblaUp = ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto_up");
                     if (doblaUp.Equals("ON"))
                     {
                         ChkUpLayer.IsChecked = true;
@@ -98,7 +92,7 @@ namespace mpDrawOrderByLayer
                         TbUpLayer.IsEnabled = false;
                         CbUpLayers.IsEnabled = false;
                     }
-                    var doblaUpLayer = MpCadHelpers.GetStringXData("MP_DOBLAuto_up_layer");
+                    var doblaUpLayer = ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto_up_layer");
                     if (CbUpLayers.Items.Contains(doblaUpLayer))
                         CbUpLayers.SelectedItem = doblaUpLayer;
                     else CbUpLayers.SelectedIndex = 0;
@@ -111,9 +105,9 @@ namespace mpDrawOrderByLayer
                     CbUpLayers.SelectedIndex = 0;
                 }
                 // Слой "Вниз"
-                if (MpCadHelpers.HasXDataDictionary("MP_DOBLAuto_down"))
+                if (ModPlus.Helpers.XDataHelpers.HasXDataDictionary("MP_DOBLAuto_down"))
                 {
-                    var doblaDown = MpCadHelpers.GetStringXData("MP_DOBLAuto_down");
+                    var doblaDown = ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto_down");
                     if (doblaDown.Equals("ON"))
                     {
                         ChkDownLayer.IsChecked = true;
@@ -126,7 +120,7 @@ namespace mpDrawOrderByLayer
                         TbDownLayer.IsEnabled = false;
                         CbDownLayers.IsEnabled = false;
                     }
-                    var doblaDownLayer = MpCadHelpers.GetStringXData("MP_DOBLAuto_down_layer");
+                    var doblaDownLayer = ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto_down_layer");
                     if (CbDownLayers.Items.Contains(doblaDownLayer))
                         CbDownLayers.SelectedItem = doblaDownLayer;
                     else CbDownLayers.SelectedIndex = 0;
@@ -282,26 +276,26 @@ namespace mpDrawOrderByLayer
             if (isChecked != null && (bool)isChecked)
             {
                 // Сохраняем запись о включенном режиме
-                MpCadHelpers.SetStringXData("MP_DOBLAuto", "ON");
+                ModPlus.Helpers.XDataHelpers.SetStringXData("MP_DOBLAuto", "ON");
                 // Сохраняем настройки слоев
                 var b = ChkUpLayer.IsChecked;
                 if (b != null && (bool)b)
-                    MpCadHelpers.SetStringXData("MP_DOBLAuto_up", "ON");
-                else MpCadHelpers.SetStringXData("MP_DOBLAuto_up", "OFF");
+                    ModPlus.Helpers.XDataHelpers.SetStringXData("MP_DOBLAuto_up", "ON");
+                else ModPlus.Helpers.XDataHelpers.SetStringXData("MP_DOBLAuto_up", "OFF");
                 var @checked = ChkDownLayer.IsChecked;
                 if (@checked != null && (bool)@checked)
-                    MpCadHelpers.SetStringXData("MP_DOBLAuto_down", "ON");
-                else MpCadHelpers.SetStringXData("MP_DOBLAuto_down", "OFF");
+                    ModPlus.Helpers.XDataHelpers.SetStringXData("MP_DOBLAuto_down", "ON");
+                else ModPlus.Helpers.XDataHelpers.SetStringXData("MP_DOBLAuto_down", "OFF");
                 // Сохраняем выбранные слои в файл
-                MpCadHelpers.SetStringXData("MP_DOBLAuto_up_layer", CbUpLayers.SelectedItem.ToString());
-                MpCadHelpers.SetStringXData("MP_DOBLAuto_down_layer", CbDownLayers.SelectedItem.ToString());
+                ModPlus.Helpers.XDataHelpers.SetStringXData("MP_DOBLAuto_up_layer", CbUpLayers.SelectedItem.ToString());
+                ModPlus.Helpers.XDataHelpers.SetStringXData("MP_DOBLAuto_down_layer", CbDownLayers.SelectedItem.ToString());
                 // Включаем обработчики событий
                 var doev = new DrawOrderByLayerEvents();
                 doev.On();
             }
             else
             {
-                MpCadHelpers.SetStringXData("MP_DOBLAuto", "OFF");
+                ModPlus.Helpers.XDataHelpers.SetStringXData("MP_DOBLAuto", "OFF");
                 // Выключаем обработчики событий
                 var doev = new DrawOrderByLayerEvents();
                 doev.Off();
@@ -407,10 +401,10 @@ namespace mpDrawOrderByLayer
         {
             AcApp.DocumentManager.MdiActiveDocument = e.Document;
             // Проверяем запись о состоянии режима "Авто"
-            if (MpCadHelpers.HasXDataDictionary("MP_DOBLAuto"))
+            if (ModPlus.Helpers.XDataHelpers.HasXDataDictionary("MP_DOBLAuto"))
             {
                 // Если такая запись существует, то проверяем состояние вкл/выкл
-                var doblaStatus = MpCadHelpers.GetStringXData("MP_DOBLAuto");
+                var doblaStatus = ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto");
                 // Если состояние вкл
                 if (doblaStatus.Equals("ON"))
                     On();
@@ -421,7 +415,7 @@ namespace mpDrawOrderByLayer
         // ReSharper disable once MemberCanBeMadeStatic.Local
         private void DocumentManager_DocumentActivated(object sender, DocumentCollectionEventArgs e)
         {
-            DoblaIsEventOn = MpCadHelpers.GetStringXData("MP_DOBLAuto").Equals("ON");
+            DoblaIsEventOn = ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto").Equals("ON");
         }
 
         // Обработка события добавления объекта в базу чертежа
@@ -495,17 +489,17 @@ namespace mpDrawOrderByLayer
                                                 {
                                                     var dot = tr.GetObject(btr.DrawOrderTableId, OpenMode.ForWrite) as DrawOrderTable;
                                                     var curLay = ent.Layer;
-                                                    if (MpCadHelpers.GetStringXData("MP_DOBLAuto_up").Equals("ON"))
+                                                    if (ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto_up").Equals("ON"))
                                                     {
-                                                        if (MpCadHelpers.GetStringXData("MP_DOBLAuto_up_layer").Equals(curLay))
+                                                        if (ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto_up_layer").Equals(curLay))
                                                         {
                                                             dot?.MoveToTop(new ObjectIdCollection(new[] { ent.ObjectId }));
                                                             ed.WriteMessage("\nModPlus: Объект на слое: " + "\"" + curLay + "\" перемещен на передний план");
                                                         }
                                                     }
-                                                    if (MpCadHelpers.GetStringXData("MP_DOBLAuto_down").Equals("ON"))
+                                                    if (ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto_down").Equals("ON"))
                                                     {
-                                                        if (MpCadHelpers.GetStringXData("MP_DOBLAuto_down_layer").Equals(curLay))
+                                                        if (ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto_down_layer").Equals(curLay))
                                                         {
                                                             dot?.MoveToBottom(new ObjectIdCollection(new[] { ent.ObjectId }));
                                                             ed.WriteMessage("\nModPlus: Объект на слое: " + "\"" + curLay + "\" перемещен на задний план");
@@ -530,9 +524,9 @@ namespace mpDrawOrderByLayer
                         ObjCol.Clear();
                     }
                 }
-                catch (Exception ex)
+                catch (System.Exception ex)
                 {
-                    MpExWin.Show(ex);
+                    ExceptionBox.Show(ex);
                 }
             }
         }
@@ -556,6 +550,8 @@ namespace mpDrawOrderByLayer
         [CommandMethod("ModPlus", "MpDrawOrderByLayer", CommandFlags.Modal)]
         public void StartFunction()
         {
+            Statistic.SendCommandStarting(new Interface());
+
             if (_drawOrderByLayer == null)
             {
                 _drawOrderByLayer = new DrawOrderByLayer();

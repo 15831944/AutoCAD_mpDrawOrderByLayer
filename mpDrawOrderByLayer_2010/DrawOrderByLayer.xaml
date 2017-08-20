@@ -13,16 +13,8 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.AnimatedSingleRowTabControl.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/ModPlusAPI;component/Windows/WinResources/Styles.xaml"></ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
-            <Style x:Key="BtStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource SquareMetroButton}">
-                <Setter Property="BorderThickness" Value="1" />
-            </Style>
             <Canvas x:Key="appbar_layer_up" Width="76.0106" Height="76.0106" Clip="F1 M 0,0L 76.0106,0L 76.0106,76.0106L 0,76.0106L 0,0">
                 <Path Width="38.0053" Height="40.3782" Canvas.Left="19.0027" Canvas.Top="18.2133" Stretch="Fill" Fill="Black" Data="F1 M 38.0053,58.5915L 19.0027,49.0902L 38.0053,39.5889L 57.008,49.0902L 38.0053,58.5915 Z M 41.1733,36.4218L 34.84,36.4218L 34.84,27.3176L 28.5066,34.0468L 28.5066,28.1091L 38.0066,18.2133L 47.5066,28.1091L 47.5066,34.0468L 41.1733,27.3176L 41.1733,36.4218 Z "/>
             </Canvas>
@@ -43,7 +35,7 @@
             </Canvas>
         </ResourceDictionary>
     </Window.Resources>
-    <Grid Margin="2">
+    <Grid Margin="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
@@ -63,61 +55,61 @@
             <controls:ProgressRing Name="PrWait" IsActive="True" Panel.ZIndex="1"
                                Visibility="Hidden"></controls:ProgressRing>
             <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical">
-                <Button Margin="2" Name="BtLayerUp" Padding="2"
-                        Style="{StaticResource BtStyle}" Click="BtLayerUp_Click"
+                <Button Margin="2" Name="BtLayerUp" Padding="2" Width="30" Height="30"
+                        Click="BtLayerUp_Click"
                         ToolTip="Переместить выбранную позицию вверх">
-                    <Rectangle Fill="{DynamicResource AccentColorBrush}"
-                               Width="24" Height="24">
+                    <Rectangle Fill="{DynamicResource BlackBrush}"
+                               Width="20" Height="20">
                         <Rectangle.OpacityMask>
                             <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_layer_up}"></VisualBrush>
                         </Rectangle.OpacityMask>
                     </Rectangle>
                 </Button>
-                <Button Margin="2" Name="BtLayerDown" Padding="2"
-                        Style="{StaticResource BtStyle}" Click="BtLayerDown_Click"
+                <Button Margin="2" Name="BtLayerDown" Padding="2" Width="30" Height="30"
+                         Click="BtLayerDown_Click"
                         ToolTip="Переместить выбранную позицию вниз">
-                    <Rectangle Fill="{DynamicResource AccentColorBrush}"
-                               Width="24" Height="24">
+                    <Rectangle Fill="{DynamicResource BlackBrush}"
+                               Width="20" Height="20">
                         <Rectangle.OpacityMask>
                             <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_layer_down}"></VisualBrush>
                         </Rectangle.OpacityMask>
                     </Rectangle>
                 </Button>
-                <Button Margin="2" Name="BtReverse" Padding="2"
-                        Style="{StaticResource BtStyle}" Click="BtReverse_Click"
+                <Button Margin="2" Name="BtReverse" Padding="2" Width="30" Height="30"
+                         Click="BtReverse_Click"
                         ToolTip="Реверс списка">
-                    <Rectangle Fill="{DynamicResource AccentColorBrush}"
-                               Width="24" Height="24">
+                    <Rectangle Fill="{DynamicResource BlackBrush}"
+                               Width="20" Height="20">
                         <Rectangle.OpacityMask>
                             <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_arrow_down_up}"></VisualBrush>
                         </Rectangle.OpacityMask>
                     </Rectangle>
                 </Button>
-                <Button Margin="2" Name="BtSelectAll" Padding="2"
-                        Style="{StaticResource BtStyle}" Click="BtSelectAll_Click"
+                <Button Margin="2" Name="BtSelectAll" Padding="2" Width="30" Height="30"
+                         Click="BtSelectAll_Click"
                         ToolTip="Выбрать все">
-                    <Rectangle Fill="{DynamicResource AccentColorBrush}"
-                               Width="24" Height="24">
+                    <Rectangle Fill="{DynamicResource BlackBrush}"
+                               Width="20" Height="18">
                         <Rectangle.OpacityMask>
                             <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_list_check}"></VisualBrush>
                         </Rectangle.OpacityMask>
                     </Rectangle>
                 </Button>
-                <Button Margin="2" Name="BtDeSelectAll" Padding="2"
-                        Style="{StaticResource BtStyle}" Click="BtDeSelectAll_Click"
+                <Button Margin="2" Name="BtDeSelectAll" Padding="2" Width="30" Height="30"
+                         Click="BtDeSelectAll_Click"
                         ToolTip="Снять выбор">
-                    <Rectangle Fill="{DynamicResource AccentColorBrush}"
-                               Width="24" Height="24">
+                    <Rectangle Fill="{DynamicResource BlackBrush}"
+                               Width="20" Height="20">
                         <Rectangle.OpacityMask>
                             <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_checkmark_cross}"></VisualBrush>
                         </Rectangle.OpacityMask>
                     </Rectangle>
                 </Button>
-                <Button Margin="2" Name="BtInverse" Padding="2"
-                        Style="{StaticResource BtStyle}" Click="BtInverse_Click"
+                <Button Margin="2" Name="BtInverse" Padding="2" Width="30" Height="30"
+                         Click="BtInverse_Click"
                         ToolTip="Инверсия выбора">
-                    <Rectangle Fill="{DynamicResource AccentColorBrush}"
-                               Width="24" Height="24">
+                    <Rectangle Fill="{DynamicResource BlackBrush}"
+                               Width="18" Height="20">
                         <Rectangle.OpacityMask>
                             <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_refresh}"></VisualBrush>
                         </Rectangle.OpacityMask>
@@ -162,7 +154,7 @@
                     <ColumnDefinition Width="*"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
                 <Button Grid.Column="0" Margin="2" Grid.ColumnSpan="2"
-                        Style="{StaticResource BtStyle}"
+                        
                         MinWidth="75" HorizontalAlignment="Center"
                         Content="Применить"
                         Name="BtAccept" Click="BtAccept_Click"></Button>
