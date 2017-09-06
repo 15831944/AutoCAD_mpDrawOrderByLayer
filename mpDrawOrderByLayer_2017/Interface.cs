@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ModPlusAPI.Interfaces;
 
 namespace mpDrawOrderByLayer
@@ -8,7 +9,9 @@ namespace mpDrawOrderByLayer
         public SupportedProduct SupportedProduct => SupportedProduct.AutoCAD;
         public string Name => "mpDrawOrderByLayer";
         public string AvailProductExternalVersion => "2017";
-        public string ClassName => string.Empty;
+        public string FullClassName => string.Empty;
+        public string AppFullClassName => string.Empty;
+        public Guid AddInId => Guid.Empty;
         public string LName => "Порядок по слою";
         public string Description => "Функция служит для изменения порядка прорисовки согласно слоям";
         public string Author => "Пекшев Александр aka Modis";
