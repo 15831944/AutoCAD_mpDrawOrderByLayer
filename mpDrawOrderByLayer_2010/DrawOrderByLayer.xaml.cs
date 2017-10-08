@@ -425,11 +425,9 @@ namespace mpDrawOrderByLayer
             {
                 var doc = AcApp.DocumentManager.MdiActiveDocument;
                 var db = doc.Database;
-                if (
-                    e.DBObject.OwnerId == db.CurrentSpaceId &&
+                if (e.DBObject.OwnerId == db.CurrentSpaceId &&
                     !e.DBObject.IsErased &&
-                    e.DBObject.ObjectId != ObjectId.Null
-                    )
+                    e.DBObject.ObjectId != ObjectId.Null)
                 {
                     try
                     {
@@ -467,7 +465,7 @@ namespace mpDrawOrderByLayer
                         e.GlobalCommandName.ToUpper() != "EXPORTLAYOUT" // Экспорт листа в модель
                         )
                     {
-                        if (ObjCol.Count > 0 & ObjCol != null)
+                        if (ObjCol != null && ObjCol.Count > 0)
                         {
                             using (doc.LockDocument())
                             {
@@ -477,12 +475,8 @@ namespace mpDrawOrderByLayer
                                     {
                                         try
                                         {
-                                            var ent = (Entity)tr.GetObject(objId, OpenMode.ForWrite);
-                                            if (
-                                                ent.OwnerId == db.CurrentSpaceId &&
-                                                !ent.IsErased &&
-                                                ent.ObjectId != ObjectId.Null
-                                                )
+                                            var ent = tr.GetObject(objId, OpenMode.ForWrite) as Entity;
+                                            if (ent != null && ent.OwnerId == db.CurrentSpaceId && !ent.IsErased && ent.ObjectId != ObjectId.Null)
                                             {
                                                 var btr = tr.GetObject(db.CurrentSpaceId, OpenMode.ForWrite) as BlockTableRecord;
                                                 if (btr != null)
@@ -517,11 +511,11 @@ namespace mpDrawOrderByLayer
                                 }
                             }
                         } // if
-                        ObjCol.Clear();
+                        ObjCol?.Clear();
                     }
                     else
                     {
-                        ObjCol.Clear();
+                        ObjCol?.Clear();
                     }
                 }
                 catch (System.Exception ex)
