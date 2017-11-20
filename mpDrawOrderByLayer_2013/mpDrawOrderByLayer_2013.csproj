@@ -45,6 +45,10 @@
       <HintPath>..\..\..\..\_Acad dlls\2013\acmgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="GongSolutions.Wpf.DragDrop">
+      <HintPath>..\..\..\..\..\..\..\ModPlus\Extensions\GongSolutions.Wpf.DragDrop.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="MahApps.Metro">
       <HintPath>..\..\..\..\..\..\..\ModPlus\Extensions\MahApps.Metro.dll</HintPath>
       <Private>False</Private>

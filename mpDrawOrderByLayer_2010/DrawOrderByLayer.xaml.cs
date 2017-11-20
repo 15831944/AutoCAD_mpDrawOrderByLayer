@@ -19,13 +19,8 @@ using ModPlusAPI.Windows;
 using ModPlusAPI.Windows.Helpers;
 using Visibility = System.Windows.Visibility;
 
-// ModPlus
-
 namespace mpDrawOrderByLayer
 {
-    /// <summary>
-    /// Логика взаимодействия для DrawOrderByLayer.xaml
-    /// </summary>
     public partial class DrawOrderByLayer
     {
 
@@ -37,11 +32,171 @@ namespace mpDrawOrderByLayer
         // Окно загрузилось
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            SizeToContent = SizeToContent.Manual;
             // Заполняем списки слоев
             FillLayers();
             // Проверка расширенных данных и установка начальных значений для режима "Авто"
             CheckXData();
+            AcApp.DocumentManager.MdiActiveDocument.Database.ObjectAppended += Database_ObjectAppended;
+            AcApp.DocumentManager.MdiActiveDocument.Database.ObjectErased += Database_ObjectErased;
+            AcApp.DocumentManager.MdiActiveDocument.Database.ObjectModified += Database_ObjectModified;
+            AcApp.DocumentManager.DocumentCreated += DocumentManager_DocumentCreated;
+            AcApp.DocumentManager.DocumentActivated += DocumentManager_DocumentActivated;
         }
+
+        private void DocumentManager_DocumentActivated(object sender, DocumentCollectionEventArgs e)
+        {
+            FillLayers();
+        }
+
+        private void DocumentManager_DocumentCreated(object sender, DocumentCollectionEventArgs e)
+        {
+            FillLayers();
+        }
+
+        private void Database_ObjectModified(object sender, ObjectEventArgs e)
+        {
+            try
+            {
+                if (e.DBObject is LayerTableRecord ltr)
+                {
+                    var doc = AcApp.DocumentManager.MdiActiveDocument;
+                    var db = doc.Database;
+                    var layersNames = new List<string>();
+                    using (var tr = db.TransactionManager.StartOpenCloseTransaction())
+                    {
+                        // Open the Layer table for read
+                        var acLyrTbl = tr.GetObject(db.LayerTableId, OpenMode.ForRead) as LayerTable;
+                        if (acLyrTbl != null)
+                        {
+                            foreach (var acObjId in acLyrTbl)
+                            {
+                                var acLyrTblRec = tr.GetObject(acObjId, OpenMode.ForRead) as LayerTableRecord;
+
+                                if (acLyrTblRec != null & acLyrTblRec?.IsDependent == false)
+                                {
+                                    layersNames.Add(acLyrTblRec.Name);
+                                }
+                            }
+                        }
+                    }
+                    for (var i = LbLayers.Items.Count - 1; i >= 0; i--)
+                    {
+                        if (LbLayers.Items[i] is CheckBox chk)
+                        {
+                            if (!layersNames.Contains(chk.Content.ToString()))
+                                LbLayers.Items.RemoveAt(i);
+                        }
+                    }
+                    for (var i = CbDownLayers.Items.Count - 1; i >= 0; i--)
+                    {
+                        if (!layersNames.Contains(CbDownLayers.Items[i].ToString()))
+                            CbDownLayers.Items.RemoveAt(i);
+                    }
+                    for (var i = CbUpLayers.Items.Count - 1; i >= 0; i--)
+                    {
+                        if (!layersNames.Contains(CbUpLayers.Items[i].ToString()))
+                            CbUpLayers.Items.RemoveAt(i);
+                    }
+                    // add
+                    AddLayerToLists(ltr);
+                }
+            }
+            catch (System.Exception exception)
+            {
+                ExceptionBox.Show(exception);
+            }
+        }
+
+        private void DrawOrderByLayer_OnClosed(object sender, EventArgs e)
+        {
+            try
+            {
+                AcApp.DocumentManager.MdiActiveDocument.Database.ObjectAppended -= Database_ObjectAppended;
+                AcApp.DocumentManager.MdiActiveDocument.Database.ObjectErased -= Database_ObjectErased;
+                AcApp.DocumentManager.MdiActiveDocument.Database.ObjectModified -= Database_ObjectModified;
+                AcApp.DocumentManager.DocumentCreated -= DocumentManager_DocumentCreated;
+                AcApp.DocumentManager.DocumentActivated -= DocumentManager_DocumentActivated;
+            }
+            catch
+            {
+                // ignored
+            }
+        }
+
+        private void Database_ObjectAppended(object sender, ObjectEventArgs e)
+        {
+            if (e.DBObject is LayerTableRecord ltr)
+            {
+                AddLayerToLists(ltr);
+            }
+        }
+
+        private void AddLayerToLists(LayerTableRecord ltr)
+        {
+            try
+            {
+                bool hasLayer = false;
+                foreach (var item in LbLayers.Items)
+                {
+                    if (item is CheckBox chk &&
+                        chk.Content.ToString() == ltr.Name)
+                    {
+                        hasLayer = true;
+                        break;
+                    }
+                }
+                if (!hasLayer)
+                {
+                    LbLayers.Items.Add(new CheckBox { Content = ltr.Name });
+                    CbDownLayers.Items.Add(ltr.Name);
+                    CbUpLayers.Items.Add(ltr.Name);
+                }
+            }
+            catch (System.Exception exception)
+            {
+                ExceptionBox.Show(exception);
+            }
+        }
+        private void Database_ObjectErased(object sender, ObjectErasedEventArgs e)
+        {
+            try
+            {
+                if (e.DBObject is LayerTableRecord ltr)
+                {
+                    foreach (var item in LbLayers.Items)
+                    {
+                        if (item is CheckBox chk &&
+                            chk.Content.ToString() == ltr.Name)
+                        {
+                            LbLayers.Items.Remove(item);
+                            break;
+                        }
+                    }
+                    foreach (object item in CbDownLayers.Items)
+                    {
+                        if (item.ToString().Equals(ltr.Name))
+                        {
+                            CbDownLayers.Items.Remove(item);
+                            break;
+                        }
+                    }
+                    foreach (object item in CbUpLayers.Items)
+                    {
+                        if (item.ToString().Equals(ltr.Name))
+                        {
+                            CbUpLayers.Items.Remove(item);
+                            break;
+                        }
+                    }
+                }
+            }
+            catch (System.Exception exception)
+            {
+                ExceptionBox.Show(exception);
+            }
+        }
+
         private void DrawOrderByLayer_OnMouseEnter(object sender, MouseEventArgs e)
         {
             Focus();
@@ -155,6 +310,7 @@ namespace mpDrawOrderByLayer
             // Сначала очищаем списки
             foreach (var cb in cbs)
                 cb.Items.Clear();
+            LbLayers.Items.Clear();
             var doc = AcApp.DocumentManager.MdiActiveDocument;
             var db = doc.Database;
             using (var tr = db.TransactionManager.StartTransaction())
@@ -364,6 +520,11 @@ namespace mpDrawOrderByLayer
         }
         #endregion
 
+        private void DrawOrderByLayer_OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+                Close();
+        }
     }
     // Оработчики событий
     public class DrawOrderByLayerEvents : IExtensionApplication
@@ -554,7 +715,7 @@ namespace mpDrawOrderByLayer
             if (_drawOrderByLayer.IsLoaded)
                 _drawOrderByLayer.Activate();
             else
-                AcApp.ShowModalWindow(
+                AcApp.ShowModelessWindow(
                     AcApp.MainWindow.Handle, _drawOrderByLayer);
         }
         void window_Closed(object sender, EventArgs e)
