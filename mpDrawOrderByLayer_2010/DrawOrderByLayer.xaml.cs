@@ -389,40 +389,43 @@ namespace mpDrawOrderByLayer
                 var doc = AcApp.DocumentManager.MdiActiveDocument;
                 var db = doc.Database;
                 var ed = doc.Editor;
-                using (var tr = db.TransactionManager.StartTransaction())
+                using (doc.LockDocument())
                 {
-                    var btr = tr.GetObject(db.CurrentSpaceId, OpenMode.ForWrite) as BlockTableRecord;
-                    if (btr != null)
+                    using (var tr = db.TransactionManager.StartTransaction())
                     {
-                        var dot = tr.GetObject(btr.DrawOrderTableId, OpenMode.ForWrite) as DrawOrderTable;
-                        try
+                        var btr = tr.GetObject(db.CurrentSpaceId, OpenMode.ForWrite) as BlockTableRecord;
+                        if (btr != null)
                         {
-                            PrWait.Visibility = Visibility.Visible;
-                            foreach (var lay in layers)
+                            var dot = tr.GetObject(btr.DrawOrderTableId, OpenMode.ForWrite) as DrawOrderTable;
+                            try
                             {
-                                var tvs = new[]
+                                PrWait.Visibility = Visibility.Visible;
+                                foreach (var lay in layers)
                                 {
-                                    new TypedValue((int)DxfCode.LayerName,lay),
-                                };
-                                var sf = new SelectionFilter(tvs);
-                                var psr = ed.SelectAll(sf);
-                                if (psr.Value != null)
-                                {
-                                    var objs = new ObjectIdCollection();
-                                    foreach (var objid in psr.Value.GetObjectIds())
+                                    var tvs = new[]
                                     {
-                                        var obj = tr.GetObject(objid, OpenMode.ForRead);
-                                        if (obj.OwnerId == db.CurrentSpaceId)
-                                            objs.Add(objid);
+                                        new TypedValue((int) DxfCode.LayerName, lay),
+                                    };
+                                    var sf = new SelectionFilter(tvs);
+                                    var psr = ed.SelectAll(sf);
+                                    if (psr.Value != null)
+                                    {
+                                        var objs = new ObjectIdCollection();
+                                        foreach (var objid in psr.Value.GetObjectIds())
+                                        {
+                                            var obj = tr.GetObject(objid, OpenMode.ForRead);
+                                            if (obj.OwnerId == db.CurrentSpaceId)
+                                                objs.Add(objid);
+                                        }
+                                        dot?.MoveToTop(objs);
                                     }
-                                    dot?.MoveToTop(objs);
                                 }
                             }
-                        }
-                        finally
-                        {
-                            PrWait.Visibility = Visibility.Hidden;
-                            tr.Commit();
+                            finally
+                            {
+                                PrWait.Visibility = Visibility.Hidden;
+                                tr.Commit();
+                            }
                         }
                     }
                 }
