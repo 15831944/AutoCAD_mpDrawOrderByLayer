@@ -31,15 +31,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="accoremgd">
-      <HintPath>..\..\_Acad dlls\2015\accoremgd.dll</HintPath>
+      <HintPath>..\..\..\..\_Acad dlls\2015\accoremgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="acdbmgd">
-      <HintPath>..\..\_Acad dlls\2015\acdbmgd.dll</HintPath>
+      <HintPath>..\..\..\..\_Acad dlls\2015\acdbmgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="acmgd">
-      <HintPath>..\..\_Acad dlls\2015\acmgd.dll</HintPath>
+      <HintPath>..\..\..\..\_Acad dlls\2015\acmgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="GongSolutions.Wpf.DragDrop">
@@ -63,6 +63,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Microsoft.CSharp" />
@@ -73,6 +74,9 @@
     <Compile Include="..\mpDrawOrderByLayer_2010\DrawOrderByLayer.xaml.cs">
       <Link>DrawOrderByLayer.xaml.cs</Link>
       <DependentUpon>DrawOrderByLayer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="..\mpDrawOrderByLayer_2010\MainViewModel.cs">
+      <Link>MainViewModel.cs</Link>
     </Compile>
     <Compile Include="Interface.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

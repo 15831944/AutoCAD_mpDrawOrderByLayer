@@ -34,11 +34,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="acdbmgd">
-      <HintPath>..\..\_Acad dlls\2010\acdbmgd.dll</HintPath>
+      <HintPath>..\..\..\..\_Acad dlls\2010\acdbmgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="acmgd">
-      <HintPath>..\..\_Acad dlls\2010\acmgd.dll</HintPath>
+      <HintPath>..\..\..\..\_Acad dlls\2010\acmgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="GongSolutions.Wpf.DragDrop">
@@ -62,6 +62,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Xml" />
@@ -72,6 +73,7 @@
       <DependentUpon>DrawOrderByLayer.xaml</DependentUpon>
     </Compile>
     <Compile Include="Interface.cs" />
+    <Compile Include="MainViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
