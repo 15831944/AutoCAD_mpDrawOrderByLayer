@@ -9,7 +9,6 @@ using System.Windows;
 using System.Windows.Input;
 using Autodesk.AutoCAD.Internal;
 using ModPlusAPI;
-using ModPlusAPI.Windows.Helpers;
 
 namespace mpDrawOrderByLayer
 {
@@ -18,7 +17,7 @@ namespace mpDrawOrderByLayer
         public DrawOrderByLayer()
         {
             InitializeComponent();
-            this.OnWindowStartUp();
+            Title = ModPlusAPI.Language.GetItem("mpDrawOrderByLayer", "h1");
         }
         // Окно загрузилось
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -40,12 +39,7 @@ namespace mpDrawOrderByLayer
         {
             Utils.SetFocusToDwgView();
         }
-
-        private void DrawOrderByLayer_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            DragMove();
-        }
-
+        
         private void DrawOrderByLayer_OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Escape)
