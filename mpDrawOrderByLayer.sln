@@ -3,12 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mpDrawOrderByLayer_2010", "mpDrawOrderByLayer_2010\mpDrawOrderByLayer_2010.csproj", "{A564C238-1217-4C5B-92E5-D2DBBDE37337}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mpDrawOrderByLayer_2011", "mpDrawOrderByLayer_2011\mpDrawOrderByLayer_2011.csproj", "{941D0865-77C3-4D25-BECA-7A6ADE6C0B8F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mpDrawOrderByLayer_2012", "mpDrawOrderByLayer_2012\mpDrawOrderByLayer_2012.csproj", "{BC92ED82-C838-464B-B62A-80FA33F695E8}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mpDrawOrderByLayer_2013", "mpDrawOrderByLayer_2013\mpDrawOrderByLayer_2013.csproj", "{13698D18-E050-4BB4-B775-BCD017397699}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mpDrawOrderByLayer_2014", "mpDrawOrderByLayer_2014\mpDrawOrderByLayer_2014.csproj", "{57C30881-0F44-4341-BA13-D1B1A47E6E26}"
@@ -29,18 +23,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A564C238-1217-4C5B-92E5-D2DBBDE37337}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A564C238-1217-4C5B-92E5-D2DBBDE37337}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A564C238-1217-4C5B-92E5-D2DBBDE37337}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A564C238-1217-4C5B-92E5-D2DBBDE37337}.Release|Any CPU.Build.0 = Release|Any CPU
-		{941D0865-77C3-4D25-BECA-7A6ADE6C0B8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{941D0865-77C3-4D25-BECA-7A6ADE6C0B8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{941D0865-77C3-4D25-BECA-7A6ADE6C0B8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{941D0865-77C3-4D25-BECA-7A6ADE6C0B8F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BC92ED82-C838-464B-B62A-80FA33F695E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BC92ED82-C838-464B-B62A-80FA33F695E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BC92ED82-C838-464B-B62A-80FA33F695E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BC92ED82-C838-464B-B62A-80FA33F695E8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{13698D18-E050-4BB4-B775-BCD017397699}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{13698D18-E050-4BB4-B775-BCD017397699}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13698D18-E050-4BB4-B775-BCD017397699}.Release|Any CPU.ActiveCfg = Release|Any CPU
