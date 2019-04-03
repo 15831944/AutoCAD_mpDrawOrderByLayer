@@ -50,7 +50,7 @@ namespace mpDrawOrderByLayer
         [CommandMethod("ModPlus", "MpDrawOrderByLayer", CommandFlags.Modal)]
         public void StartFunction()
         {
-            Statistic.SendCommandStarting(new Interface());
+            Statistic.SendCommandStarting(new ModPlusConnector());
 
             if (_drawOrderByLayer == null)
             {

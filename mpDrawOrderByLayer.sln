@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2002
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28729.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mpDrawOrderByLayer_2013", "mpDrawOrderByLayer_2013\mpDrawOrderByLayer_2013.csproj", "{13698D18-E050-4BB4-B775-BCD017397699}"
 EndProject
@@ -16,6 +16,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mpDrawOrderByLayer_2018", "mpDrawOrderByLayer_2018\mpDrawOrderByLayer_2018.csproj", "{88467342-5BC9-4007-B861-ECABEF129645}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mpDrawOrderByLayer_2019", "mpDrawOrderByLayer_2019\mpDrawOrderByLayer_2019.csproj", "{BAA0C0D2-C3AC-4A5C-9949-CA18D48A502B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mpDrawOrderByLayer_2020", "mpDrawOrderByLayer_2020\mpDrawOrderByLayer_2020.csproj", "{9F481558-2D30-4867-83FF-309419AF81F8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{BAA0C0D2-C3AC-4A5C-9949-CA18D48A502B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BAA0C0D2-C3AC-4A5C-9949-CA18D48A502B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BAA0C0D2-C3AC-4A5C-9949-CA18D48A502B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F481558-2D30-4867-83FF-309419AF81F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F481558-2D30-4867-83FF-309419AF81F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F481558-2D30-4867-83FF-309419AF81F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F481558-2D30-4867-83FF-309419AF81F8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

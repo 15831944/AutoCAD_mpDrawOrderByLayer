@@ -4,42 +4,45 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{BAA0C0D2-C3AC-4A5C-9949-CA18D48A502B}</ProjectGuid>
+    <ProjectGuid>{9F481558-2D30-4867-83FF-309419AF81F8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>mpDrawOrderByLayer</RootNamespace>
-    <AssemblyName>mpDrawOrderByLayer_2019</AssemblyName>
+    <AssemblyName>mpDrawOrderByLayer_2020</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;A2019</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;A2020</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;A2019</DefineConstants>
+    <DefineConstants>TRACE;A2020</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="accoremgd">
-      <HintPath>C:\_Acad dlls\2019\accoremgd.dll</HintPath>
+      <HintPath>C:\_Acad dlls\2020\accoremgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="acdbmgd">
-      <HintPath>C:\_Acad dlls\2019\acdbmgd.dll</HintPath>
+      <HintPath>C:\_Acad dlls\2020\acdbmgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="acmgd">
-      <HintPath>C:\_Acad dlls\2019\acmgd.dll</HintPath>
+      <HintPath>C:\_Acad dlls\2020\acmgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="GongSolutions.Wpf.DragDrop">
@@ -54,32 +57,20 @@
       <HintPath>..\..\..\..\..\..\..\ModPlus\Extensions\ModPlusStyle.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="ModPlus_2019">
-      <HintPath>..\..\..\..\..\..\..\ModPlus\Extensions\ModPlus_2019.dll</HintPath>
+    <Reference Include="ModPlus_2020">
+      <HintPath>..\..\..\..\..\..\..\ModPlus\Extensions\ModPlus_2020.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
+    <Reference Include="System.Core" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
-    <!--
-    
-    <Reference Include="System.Core"/>
-    <Reference Include="System.Xml.Linq"/>
-    <Reference Include="System.Data.DataSetExtensions"/>
-    
-    
-    <Reference Include="Microsoft.CSharp"/>
-    
-    <Reference Include="System.Data"/>
-    
-    <Reference Include="System.Net.Http"/>
-    
-    <Reference Include="System.Xml"/>
-	-->
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Compile Include="..\mpDrawOrderByLayer_2013\DrawOrderByLayer.xaml.cs">
       <Link>DrawOrderByLayer.xaml.cs</Link>
@@ -96,25 +87,31 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="..\mpdraworderbylayer_2013\resources\mpDrawOrderByLayer_16x16.png">
+      <Link>Resources\mpDrawOrderByLayer_16x16.png</Link>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpdraworderbylayer_2013\resources\mpDrawOrderByLayer_16x16_dark.png">
+      <Link>Resources\mpDrawOrderByLayer_16x16_dark.png</Link>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpdraworderbylayer_2013\resources\mpDrawOrderByLayer_32x32.png">
+      <Link>Resources\mpDrawOrderByLayer_32x32.png</Link>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpdraworderbylayer_2013\resources\mpDrawOrderByLayer_32x32_dark.png">
+      <Link>Resources\mpDrawOrderByLayer_32x32_dark.png</Link>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
     <Page Include="..\mpDrawOrderByLayer_2013\DrawOrderByLayer.xaml">
       <Link>DrawOrderByLayer.xaml</Link>
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="..\mpDrawOrderByLayer_2013\Resources\mpDrawOrderByLayer_16x16.png">
-      <Link>Resources\mpDrawOrderByLayer_16x16.png</Link>
-    </Resource>
-    <Resource Include="..\mpDrawOrderByLayer_2013\Resources\mpDrawOrderByLayer_16x16_dark.png">
-      <Link>Resources\mpDrawOrderByLayer_16x16_dark.png</Link>
-    </Resource>
-    <Resource Include="..\mpDrawOrderByLayer_2013\Resources\mpDrawOrderByLayer_32x32.png">
-      <Link>Resources\mpDrawOrderByLayer_32x32.png</Link>
-    </Resource>
-    <Resource Include="..\mpDrawOrderByLayer_2013\Resources\mpDrawOrderByLayer_32x32_dark.png">
-      <Link>Resources\mpDrawOrderByLayer_32x32_dark.png</Link>
-    </Resource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
