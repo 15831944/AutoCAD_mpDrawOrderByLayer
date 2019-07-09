@@ -87,6 +87,29 @@
                     </Canvas>
                 </Viewbox>
             </Button>
+            <Button MinWidth="0" MinHeight="0" Padding="2"
+                    Style="{DynamicResource ModPlusFlatButton}"
+                    Command="{Binding Path=SaveLayersPositionCommand}"
+                    ToolTip="{Binding Source={StaticResource Lang}, XPath=h13}">
+                <Viewbox Width="24" Height="24">
+                    <Canvas Width="24" Height="24">
+                        <Path Data="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" 
+                              Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Path=Foreground}" />
+                    </Canvas>
+                </Viewbox>
+            </Button>
+            <Button MinHeight="0" MinWidth="0" Padding="2"
+                    Style="{DynamicResource ModPlusFlatButton}"
+                    Command="{Binding Path=LoadLayersPositionCommand}"
+                    IsEnabled="{Binding Path=IsEnableLoadLayersPosition}"
+                    ToolTip="{Binding Source={StaticResource Lang}, XPath=h14}">
+                <Viewbox Width="24" Height="24">
+                    <Canvas Width="24" Height="24">
+                        <Path Data="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z"
+                              Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Path=Foreground}" />
+                    </Canvas>
+                </Viewbox>
+            </Button>
         </StackPanel>
         <ListBox Grid.Row="0" Grid.Column="0"
                  Name="LbLayers" HorizontalContentAlignment="Stretch"
@@ -98,8 +121,10 @@
                  mps:ListBoxAssist.ListBoxItemPadding="2">
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="local:LayerItem">
-                    <CheckBox Content="{Binding Path=Name}" Margin="0" HorizontalAlignment="Left"
-                              IsChecked="{Binding Path=Selected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></CheckBox>
+                    <CheckBox Margin="0" HorizontalAlignment="Left"
+                              IsChecked="{Binding Path=Selected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBlock Text="{Binding Path=Name}"></TextBlock>
+                    </CheckBox>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

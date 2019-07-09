@@ -15,8 +15,31 @@ using ModPlusAPI;
 
 namespace mpDrawOrderByLayer
 {
-    public class MainViewModel : INotifyPropertyChanged
+    using ModPlusAPI.Mvvm;
+    using Exception = System.Exception;
+
+    public class MainViewModel : VmBase
     {
+        private readonly string _dictionaryName = "MP_DOBLAuto";
+        private readonly string _mpLayersposition = "MP_LayersPosition";
+
+        private bool _autoMove;
+
+        private LayerItem _downLayerName;
+
+        private bool _downLayerWork;
+
+        private bool _enableElements = true;
+
+        private bool _isEnableLoadLayersPosition;
+
+        private double _progressMaximum = 1;
+
+        private double _progressValue;
+
+        private LayerItem _upLayerName;
+
+        private bool _upLayerWork;
         public DrawOrderByLayer ParentWindow;
 
         public MainViewModel()
@@ -24,6 +47,7 @@ namespace mpDrawOrderByLayer
             Layers = new ObservableCollection<LayerItem>();
             FillLayers();
             CheckXData();
+            CheckIsEnableLoadLayersPosition();
             AcApp.DocumentManager.MdiActiveDocument.Database.ObjectAppended += Database_ObjectAppended;
             AcApp.DocumentManager.MdiActiveDocument.Database.ObjectErased += Database_ObjectErased;
             AcApp.DocumentManager.MdiActiveDocument.Database.ObjectModified += Database_ObjectModified;
@@ -35,92 +59,212 @@ namespace mpDrawOrderByLayer
             DeSelectAllCommand = new RelayCommand(DeSelectAll);
             InverseListCommand = new RelayCommand(InverseList);
             AcceptCommand = new RelayCommand(Accept);
+            SaveLayersPositionCommand = new RelayCommand(SaveLayersPosition);
+            LoadLayersPositionCommand = new RelayCommand(LoadLayersPosition);
         }
 
         public ObservableCollection<LayerItem> Layers { get; set; }
 
-        private bool _autoMove;
         /// <summary>Режим "Авто"</summary>
         public bool AutoMove
         {
             get => _autoMove;
             set
             {
-                _autoMove = value; OnPropertyChanged();
-                ModPlus.Helpers.XDataHelpers.SetStringXData("MP_DOBLAuto", value ? "ON" : "OFF");
+                _autoMove = value;
+                OnPropertyChanged();
+                ModPlus.Helpers.XDataHelpers.SetStringXData(_dictionaryName, value ? "ON" : "OFF");
             }
         }
-
-        private bool _upLayerWork;
 
         public bool UpLayerWork
         {
             get => _upLayerWork;
             set
             {
-                _upLayerWork = value; OnPropertyChanged();
+                _upLayerWork = value;
+                OnPropertyChanged();
                 ModPlus.Helpers.XDataHelpers.SetStringXData("MP_DOBLAuto_up", value ? "ON" : "OFF");
             }
         }
-
-        private bool _downLayerWork;
 
         public bool DownLayerWork
         {
             get => _downLayerWork;
             set
             {
-                _downLayerWork = value; OnPropertyChanged();
+                _downLayerWork = value;
+                OnPropertyChanged();
                 ModPlus.Helpers.XDataHelpers.SetStringXData("MP_DOBLAuto_down", value ? "ON" : "OFF");
             }
         }
-
-        private LayerItem _upLayerName;
 
         public LayerItem UpLayerName
         {
             get => _upLayerName;
             set
             {
-                _upLayerName = value; OnPropertyChanged();
+                _upLayerName = value;
+                OnPropertyChanged();
                 ModPlus.Helpers.XDataHelpers.SetStringXData("MP_DOBLAuto_up_layer", value.Name);
             }
         }
-
-        private LayerItem _downLayerName;
 
         public LayerItem DownLayerName
         {
             get => _downLayerName;
             set
             {
-                _downLayerName = value; OnPropertyChanged();
+                _downLayerName = value;
+                OnPropertyChanged();
                 ModPlus.Helpers.XDataHelpers.SetStringXData("MP_DOBLAuto_down_layer", value.Name);
             }
         }
 
-        private double _progressValue;
-
         public double ProgressValue
         {
             get => _progressValue;
-            set { _progressValue = value; OnPropertyChanged(); }
+            set
+            {
+                _progressValue = value;
+                OnPropertyChanged();
+            }
         }
-
-        private double _progressMaximum = 1;
 
         public double ProgressMaximum
         {
             get => _progressMaximum;
-            set { _progressMaximum = value; OnPropertyChanged(); }
+            set
+            {
+                _progressMaximum = value;
+                OnPropertyChanged();
+            }
         }
-
-        private bool _enableElements = true;
 
         public bool EnableElements
         {
             get => _enableElements;
-            set { _enableElements = value; OnPropertyChanged(); }
+            set
+            {
+                _enableElements = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>Доступность кнопки загрузки позиций слоев</summary>
+        public bool IsEnableLoadLayersPosition
+        {
+            get => _isEnableLoadLayersPosition;
+            set
+            {
+                if (Equals(value, _isEnableLoadLayersPosition)) return;
+                _isEnableLoadLayersPosition = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>Заполнение списков слоев</summary>
+        private void FillLayers()
+        {
+            Layers.Clear();
+            var doc = AcApp.DocumentManager.MdiActiveDocument;
+            var db = doc.Database;
+            using (var tr = db.TransactionManager.StartTransaction())
+            {
+                // Open the Layer table for read
+                var acLyrTbl = tr.GetObject(db.LayerTableId, OpenMode.ForRead) as LayerTable;
+                if (acLyrTbl != null)
+                {
+                    foreach (var acObjId in acLyrTbl)
+                    {
+                        var acLyrTblRec = tr.GetObject(acObjId, OpenMode.ForRead) as LayerTableRecord;
+
+                        if (acLyrTblRec != null & acLyrTblRec?.IsDependent == false)
+                            Layers.Add(new LayerItem { Name = acLyrTblRec.Name, Selected = false });
+                    }
+                }
+            }
+        }
+
+        private void AddLayerToLists(SymbolTableRecord ltr)
+        {
+            try
+            {
+                var hasLayer = false;
+                foreach (var item in Layers)
+                {
+                    if (item.Name != ltr.Name) continue;
+                    hasLayer = true;
+                    break;
+                }
+
+                if (!hasLayer)
+                {
+                    Layers.Add(new LayerItem { Name = ltr.Name });
+                }
+            }
+            catch (System.Exception exception)
+            {
+                ExceptionBox.Show(exception);
+            }
+        }
+
+        // Проверка расширенных данных и установка начальных значений для режима "Авто"
+        private void CheckXData()
+        {
+            // Проверяем запись о состоянии режима "Авто"
+            if (ModPlus.Helpers.XDataHelpers.HasXDataDictionary(_dictionaryName))
+            {
+                // Если такая запись существует, то проверяем состояние вкл/выкл
+                var doblaStatus = ModPlus.Helpers.XDataHelpers.GetStringXData(_dictionaryName);
+                // Если состояние вкл
+                AutoMove = doblaStatus.Equals("ON");
+                // Независимо от состояния проверяем и выставляем слои
+                // Слой "Вверх"
+                if (ModPlus.Helpers.XDataHelpers.HasXDataDictionary("MP_DOBLAuto_up"))
+                {
+                    var doblaUp = ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto_up");
+                    UpLayerWork = doblaUp.Equals("ON");
+                    var doblaUpLayer = Layers.FirstOrDefault(
+                        l => l.Name == ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto_up_layer"));
+                    UpLayerName = doblaUpLayer ?? Layers[0];
+                }
+                else
+                {
+                    UpLayerWork = false;
+                    UpLayerName = Layers[0];
+                }
+
+                // Слой "Вниз"
+                if (ModPlus.Helpers.XDataHelpers.HasXDataDictionary("MP_DOBLAuto_down"))
+                {
+                    var doblaDown = ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto_down");
+                    DownLayerWork = doblaDown.Equals("ON");
+                    var doblaDownLayer = Layers.FirstOrDefault(
+                        l => l.Name == ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto_down_layer"));
+                    DownLayerName = doblaDownLayer ?? Layers[0];
+                }
+                else
+                {
+                    DownLayerWork = false;
+                    DownLayerName = Layers[0];
+                }
+            }
+            else
+            {
+                // Если такой записи нет, убираем галочку с режима "Авто"
+                AutoMove = false;
+                // а в списках слоев выбираем первый слой (Слой по умолчанию)
+                UpLayerWork = false;
+                UpLayerName = Layers[0];
+                DownLayerWork = false;
+                DownLayerName = Layers[0];
+            }
+        }
+
+        private void CheckIsEnableLoadLayersPosition()
+        {
+            IsEnableLoadLayersPosition = ModPlus.Helpers.XDataHelpers.HasXDataDictionary(_mpLayersposition);
         }
 
         #region Commands
@@ -186,7 +330,7 @@ namespace mpDrawOrderByLayer
                                 EnableElements = false;
                                 System.Windows.Forms.Application.DoEvents();
                                 var index = 0;
-                                foreach (LayerItem lay in layers)
+                                foreach (var lay in layers)
                                 {
                                     index++;
                                     ProgressValue = index;
@@ -207,6 +351,7 @@ namespace mpDrawOrderByLayer
                                             if (obj.OwnerId == db.CurrentSpaceId)
                                                 objs.Add(objid);
                                         }
+
                                         dot?.MoveToTop(objs);
                                     }
                                 }
@@ -220,6 +365,7 @@ namespace mpDrawOrderByLayer
                     }
                 }
             }
+
             // Сохраняем значение вкл/выкл режима "Авто"
             if (AutoMove)
             {
@@ -233,8 +379,77 @@ namespace mpDrawOrderByLayer
                 var doev = new DrawOrderByLayerEvents();
                 doev.Off();
             }
+
             // Закрываем окно
             ParentWindow.Close();
+        }
+
+        public ICommand SaveLayersPositionCommand { get; set; }
+
+        private void SaveLayersPosition(object o)
+        {
+            // Каждый слой буду хранить как отдельную запись, чтобы не превысить лимит
+
+            for (var i = 0; i < Layers.Count; i++)
+            {
+                var layerItem = Layers[i];
+                ModPlus.Helpers.XDataHelpers.SetStringXData($"{_mpLayersposition}_{layerItem.Name}", $"{i}_{layerItem.Selected}");
+            }
+
+            ModPlus.Helpers.XDataHelpers.SetStringXData(_mpLayersposition, "no matter");
+            CheckIsEnableLoadLayersPosition();
+        }
+
+        public ICommand LoadLayersPositionCommand { get; set; }
+
+        private void LoadLayersPosition(object o)
+        {
+            try
+            {
+                Dictionary<int, LayerItem> savedLayers = new Dictionary<int, LayerItem>();
+                List<LayerItem> notSavedLayers = new List<LayerItem>();
+                foreach (var layerItem in Layers)
+                {
+                    var key = $"{_mpLayersposition}_{layerItem.Name}";
+                    var value = ModPlus.Helpers.XDataHelpers.GetStringXData(key);
+                    bool hasSaved = false;
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        var splitted = value.Split('_');
+                        if (splitted.Length == 2)
+                        {
+                            if (int.TryParse(splitted[0], out int position) &&
+                                bool.TryParse(splitted[1], out bool isChecked))
+                            {
+                                hasSaved = true;
+                                layerItem.Selected = isChecked;
+                                savedLayers.Add(position, layerItem);
+                            }
+                        }
+                    }
+
+                    if (!hasSaved)
+                        notSavedLayers.Add(layerItem);
+                }
+
+                Layers = new ObservableCollection<LayerItem>();
+                var orderedSavedLayers = savedLayers.OrderBy(i => i.Key).ToList();
+                foreach (var keyValuePair in orderedSavedLayers)
+                {
+                    Layers.Add(keyValuePair.Value);
+                }
+
+                foreach (var notSavedLayer in notSavedLayers)
+                {
+                    Layers.Add(notSavedLayer);
+                }
+
+                OnPropertyChanged(nameof(Layers));
+            }
+            catch (Exception exception)
+            {
+                ExceptionBox.Show(exception);
+            }
         }
 
         #endregion
@@ -258,6 +473,7 @@ namespace mpDrawOrderByLayer
                 AddLayerToLists(ltr);
             }
         }
+
         private void Database_ObjectErased(object sender, ObjectErasedEventArgs e)
         {
             try
@@ -306,11 +522,13 @@ namespace mpDrawOrderByLayer
                             }
                         }
                     }
+
                     for (var i = Layers.Count - 1; i >= 0; i--)
                     {
                         if (!layersNames.Contains(Layers[i].Name))
                             Layers.RemoveAt(i);
                     }
+
                     // add
                     AddLayerToLists(ltr);
                 }
@@ -338,123 +556,34 @@ namespace mpDrawOrderByLayer
         }
 
         #endregion
-
-        /// <summary>Заполнение списков слоев</summary>
-        private void FillLayers()
-        {
-            Layers.Clear();
-            var doc = AcApp.DocumentManager.MdiActiveDocument;
-            var db = doc.Database;
-            using (var tr = db.TransactionManager.StartTransaction())
-            {
-                // Open the Layer table for read
-                var acLyrTbl = tr.GetObject(db.LayerTableId, OpenMode.ForRead) as LayerTable;
-                if (acLyrTbl != null)
-                {
-                    foreach (var acObjId in acLyrTbl)
-                    {
-                        var acLyrTblRec = tr.GetObject(acObjId, OpenMode.ForRead) as LayerTableRecord;
-
-                        if (acLyrTblRec != null & acLyrTblRec?.IsDependent == false)
-                            Layers.Add(new LayerItem { Name = acLyrTblRec.Name, Selected = false });
-                    }
-                }
-            }
-        }
-
-        private void AddLayerToLists(SymbolTableRecord ltr)
-        {
-            try
-            {
-                var hasLayer = false;
-                foreach (var item in Layers)
-                {
-                    if (item.Name != ltr.Name) continue;
-                    hasLayer = true;
-                    break;
-                }
-                if (!hasLayer)
-                {
-                    Layers.Add(new LayerItem { Name = ltr.Name });
-                }
-            }
-            catch (System.Exception exception)
-            {
-                ExceptionBox.Show(exception);
-            }
-        }
-
-        // Проверка расширенных данных и установка начальных значений для режима "Авто"
-        private void CheckXData()
-        {
-            // Проверяем запись о состоянии режима "Авто"
-            if (ModPlus.Helpers.XDataHelpers.HasXDataDictionary("MP_DOBLAuto"))
-            {
-                // Если такая запись существует, то проверяем состояние вкл/выкл
-                var doblaStatus = ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto");
-                // Если состояние вкл
-                AutoMove = doblaStatus.Equals("ON");
-                // Независимо от состояния проверяем и выставляем слои
-                // Слой "Вверх"
-                if (ModPlus.Helpers.XDataHelpers.HasXDataDictionary("MP_DOBLAuto_up"))
-                {
-                    var doblaUp = ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto_up");
-                    UpLayerWork = doblaUp.Equals("ON");
-                    var doblaUpLayer = Layers.FirstOrDefault(
-                        l => l.Name == ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto_up_layer"));
-                    UpLayerName = doblaUpLayer ?? Layers[0];
-                }
-                else
-                {
-                    UpLayerWork = false;
-                    UpLayerName = Layers[0];
-                }
-                // Слой "Вниз"
-                if (ModPlus.Helpers.XDataHelpers.HasXDataDictionary("MP_DOBLAuto_down"))
-                {
-                    var doblaDown = ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto_down");
-                    DownLayerWork = doblaDown.Equals("ON");
-                    var doblaDownLayer = Layers.FirstOrDefault(
-                        l => l.Name == ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto_down_layer"));
-                    DownLayerName = doblaDownLayer ?? Layers[0];
-                }
-                else
-                {
-                    DownLayerWork = false;
-                    DownLayerName = Layers[0];
-                }
-            }
-            else
-            {
-                // Если такой записи нет, убираем галочку с режима "Авто"
-                AutoMove = false;
-                // а в списках слоев выбираем первый слой (Слой по умолчанию)
-                UpLayerWork = false;
-                UpLayerName = Layers[0];
-                DownLayerWork = false;
-                DownLayerName = Layers[0];
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
+
     // Оработчики событий
     public class DrawOrderByLayerEvents : IExtensionApplication
     {
         private const string LangItem = "mpDrawOrderByLayer";
+
+        // Переменная показывающая включена функция или нет
+        public static bool DoblaIsEventOn;
         // Будем работать по принципу функции Автослои
         // При добавлении объекта запоминать его
         // При завершении команды перемещать слой
 
         // Глобальная переменная с наборами
-        public ObjectIdCollection ObjCol;// = new ObjectIdCollection();
-        // Переменная показывающая включена функция или нет
-        public static bool DoblaIsEventOn;
+        public ObjectIdCollection ObjCol; // = new ObjectIdCollection();
+
+        // Загрузка функции в автокад
+        public void Initialize()
+        {
+            // Подписываемся на событие создания чертежа (оно же - открытие)
+            AcApp.DocumentManager.DocumentCreated += DocumentManager_DocumentCreated;
+        }
+
+        public void Terminate()
+        {
+            // Ничего не нужно
+        }
+
         // Включение
         public void On()
         {
@@ -466,6 +595,7 @@ namespace mpDrawOrderByLayer
             AcApp.DocumentManager.MdiActiveDocument.CommandFailed += CallBack_CommandEnded;
             AcApp.DocumentManager.DocumentActivated += DocumentManager_DocumentActivated;
         }
+
         // Отключение функции
         public void Off()
         {
@@ -476,6 +606,7 @@ namespace mpDrawOrderByLayer
             AcApp.DocumentManager.MdiActiveDocument.CommandCancelled -= CallBack_CommandEnded;
             AcApp.DocumentManager.MdiActiveDocument.CommandFailed -= CallBack_CommandEnded;
         }
+
         private void DocumentManager_DocumentCreated(object sender, DocumentCollectionEventArgs e)
         {
             AcApp.DocumentManager.MdiActiveDocument = e.Document;
@@ -490,6 +621,7 @@ namespace mpDrawOrderByLayer
                 else Off();
             }
         }
+
         // Установка переменной в нужное значение в случае смены активного чертежа
         // ReSharper disable once MemberCanBeMadeStatic.Local
         private void DocumentManager_DocumentActivated(object sender, DocumentCollectionEventArgs e)
@@ -520,6 +652,7 @@ namespace mpDrawOrderByLayer
                 }
             }
         }
+
         // Обработка события завершения команды автокада
         public void CallBack_CommandEnded(object sender, CommandEventArgs e)
         {
@@ -544,7 +677,7 @@ namespace mpDrawOrderByLayer
                         e.GlobalCommandName.ToUpper() != "EXPORTLAYOUT" && // Экспорт листа в модель
                         e.GlobalCommandName.ToUpper() != "EATTEDIT" && //редактирование атрибутов
                         e.GlobalCommandName.ToUpper() != "BEDIT" // редактирование блока
-                        )
+                    )
                     {
                         if (ObjCol != null && ObjCol.Count > 0)
                         {
@@ -570,16 +703,17 @@ namespace mpDrawOrderByLayer
                                                         {
                                                             dot?.MoveToTop(new ObjectIdCollection(new[] { ent.ObjectId }));
                                                             ed.WriteMessage("\n" + Language.GetItem(LangItem, "h10") +
-                                                                " " + "\"" + curLay + "\" " + Language.GetItem(LangItem, "h11"));
+                                                                            " " + "\"" + curLay + "\" " + Language.GetItem(LangItem, "h11"));
                                                         }
                                                     }
+
                                                     if (ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto_down").Equals("ON"))
                                                     {
                                                         if (ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto_down_layer").Equals(curLay))
                                                         {
                                                             dot?.MoveToBottom(new ObjectIdCollection(new[] { ent.ObjectId }));
-                                                            ed.WriteMessage("\n"+ Language.GetItem(LangItem, "h10") +
-                                                                " " + "\"" + curLay + "\" " + Language.GetItem(LangItem, "h12"));
+                                                            ed.WriteMessage("\n" + Language.GetItem(LangItem, "h10") +
+                                                                            " " + "\"" + curLay + "\" " + Language.GetItem(LangItem, "h12"));
                                                         }
                                                     }
                                                 }
@@ -590,10 +724,12 @@ namespace mpDrawOrderByLayer
                                             // ignored
                                         }
                                     } // foreach
+
                                     tr.Commit();
                                 }
                             }
                         } // if
+
                         ObjCol?.Clear();
                     }
                     else
@@ -607,59 +743,28 @@ namespace mpDrawOrderByLayer
                 }
             }
         }
-        // Загрузка функции в автокад
-        public void Initialize()
-        {
-            // Подписываемся на событие создания чертежа (оно же - открытие)
-            AcApp.DocumentManager.DocumentCreated += DocumentManager_DocumentCreated;
-        }
-
-        public void Terminate()
-        {
-            // Ничего не нужно
-        }
     }
+
     public class LayerItem : INotifyPropertyChanged
     {
-        public string Name { get; set; }
         private bool _selected;
+        public string Name { get; set; }
+
         public bool Selected
         {
             get => _selected;
-            set { _selected = value; OnPropertyChanged(); }
+            set
+            {
+                _selected = value;
+                OnPropertyChanged();
+            }
         }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-    }
-    public class RelayCommand : ICommand
-    {
-        private readonly Action<object> _execute;
-        private readonly Func<object, bool> _canExecute;
-
-        public event EventHandler CanExecuteChanged
-        {
-            add => CommandManager.RequerySuggested += value;
-            remove => CommandManager.RequerySuggested -= value;
-        }
-
-        public RelayCommand(Action<object> execute, Func<object, bool> canExecute = null)
-        {
-            _execute = execute;
-            _canExecute = canExecute;
-        }
-
-        public bool CanExecute(object parameter)
-        {
-            return _canExecute == null || _canExecute(parameter);
-        }
-
-        public void Execute(object parameter)
-        {
-            _execute(parameter);
         }
     }
 }
