@@ -15,6 +15,7 @@ using ModPlusAPI;
 
 namespace mpDrawOrderByLayer
 {
+    using System.Diagnostics;
     using ModPlusAPI.Mvvm;
     using Exception = System.Exception;
 
@@ -312,57 +313,65 @@ namespace mpDrawOrderByLayer
             // Если список слоев не пуст
             if (layers.Count > 0)
             {
-                // Переворачиваем список
-                layers.Reverse();
-                var doc = AcApp.DocumentManager.MdiActiveDocument;
-                var db = doc.Database;
-                var ed = doc.Editor;
-                using (doc.LockDocument())
+                try
                 {
-                    using (var tr = db.TransactionManager.StartTransaction())
+                    // Переворачиваем список
+                    layers.Reverse();
+                    var doc = AcApp.DocumentManager.MdiActiveDocument;
+                    var db = doc.Database;
+                    var ed = doc.Editor;
+                    using (doc.LockDocument())
                     {
-                        var btr = tr.GetObject(db.CurrentSpaceId, OpenMode.ForWrite) as BlockTableRecord;
-                        if (btr != null)
+                        using (var tr = db.TransactionManager.StartTransaction())
                         {
-                            var dot = tr.GetObject(btr.DrawOrderTableId, OpenMode.ForWrite) as DrawOrderTable;
-                            try
+                            var btr = tr.GetObject(db.CurrentSpaceId, OpenMode.ForWrite) as BlockTableRecord;
+                            if (btr != null)
                             {
-                                EnableElements = false;
-                                System.Windows.Forms.Application.DoEvents();
-                                var index = 0;
-                                foreach (var lay in layers)
+                                var dot = tr.GetObject(btr.DrawOrderTableId, OpenMode.ForWrite) as DrawOrderTable;
+                                try
                                 {
-                                    index++;
-                                    ProgressValue = index;
+                                    EnableElements = false;
                                     System.Windows.Forms.Application.DoEvents();
+                                    var index = 0;
+                                    foreach (var lay in layers)
+                                    {
+                                        index++;
+                                        ProgressValue = index;
+                                        System.Windows.Forms.Application.DoEvents();
 
-                                    var tvs = new[]
-                                    {
-                                        new TypedValue((int) DxfCode.LayerName, lay.Name),
-                                    };
-                                    var sf = new SelectionFilter(tvs);
-                                    var psr = ed.SelectAll(sf);
-                                    if (psr.Value != null)
-                                    {
-                                        var objs = new ObjectIdCollection();
-                                        foreach (var objid in psr.Value.GetObjectIds())
+                                        var tvs = new[]
                                         {
-                                            var obj = tr.GetObject(objid, OpenMode.ForRead);
-                                            if (obj.OwnerId == db.CurrentSpaceId)
-                                                objs.Add(objid);
-                                        }
+                                            new TypedValue((int) DxfCode.LayerName, lay.Name),
+                                        };
+                                        var sf = new SelectionFilter(tvs);
+                                        var psr = ed.SelectAll(sf);
+                                        if (psr.Value != null)
+                                        {
+                                            var objectIdCollection = new ObjectIdCollection();
+                                            foreach (var objectId in psr.Value.GetObjectIds())
+                                            {
+                                                var obj = tr.GetObject(objectId, OpenMode.ForRead);
+                                                if (obj.OwnerId == db.CurrentSpaceId)
+                                                    objectIdCollection.Add(objectId);
+                                            }
 
-                                        dot?.MoveToTop(objs);
+                                            if (objectIdCollection.Count > 0)
+                                                dot?.MoveToTop(objectIdCollection);
+                                        }
                                     }
                                 }
-                            }
-                            finally
-                            {
-                                EnableElements = true;
-                                tr.Commit();
+                                finally
+                                {
+                                    EnableElements = true;
+                                    tr.Commit();
+                                }
                             }
                         }
                     }
+                }
+                catch (Exception exception)
+                {
+                    ExceptionBox.Show(exception);
                 }
             }
 
