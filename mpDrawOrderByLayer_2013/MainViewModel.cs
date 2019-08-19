@@ -391,6 +391,8 @@ namespace mpDrawOrderByLayer
 
             // Закрываем окно
             ParentWindow.Close();
+
+            AcApp.DocumentManager.MdiActiveDocument.Editor.Regen();
         }
 
         public ICommand SaveLayersPositionCommand { get; set; }
