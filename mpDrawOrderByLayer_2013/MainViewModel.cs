@@ -1,46 +1,34 @@
-﻿using AcApp = Autodesk.AutoCAD.ApplicationServices.Core.Application;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Windows.Input;
-using Autodesk.AutoCAD.ApplicationServices;
-using Autodesk.AutoCAD.DatabaseServices;
-using Autodesk.AutoCAD.EditorInput;
-using ModPlusAPI.Windows;
-using Autodesk.AutoCAD.Runtime;
-using ModPlusAPI;
-
-namespace mpDrawOrderByLayer
+﻿namespace mpDrawOrderByLayer
 {
-    using System.Diagnostics;
+    using AcApp = Autodesk.AutoCAD.ApplicationServices.Core.Application;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel;
+    using System.Linq;
+    using System.Runtime.CompilerServices;
+    using System.Windows.Input;
+    using Autodesk.AutoCAD.ApplicationServices;
+    using Autodesk.AutoCAD.DatabaseServices;
+    using Autodesk.AutoCAD.EditorInput;
+    using ModPlusAPI.Windows;
+    using Autodesk.AutoCAD.Runtime;
+    using ModPlusAPI;
     using ModPlusAPI.Mvvm;
-    using Exception = System.Exception;
 
     public class MainViewModel : VmBase
     {
         private readonly string _dictionaryName = "MP_DOBLAuto";
-        private readonly string _mpLayersposition = "MP_LayersPosition";
-
+        private readonly string _mpLayersPosition = "MP_LayersPosition";
         private bool _autoMove;
-
         private LayerItem _downLayerName;
-
         private bool _downLayerWork;
-
         private bool _enableElements = true;
-
         private bool _isEnableLoadLayersPosition;
-
         private double _progressMaximum = 1;
-
         private double _progressValue;
-
         private LayerItem _upLayerName;
-
         private bool _upLayerWork;
+
         public DrawOrderByLayer ParentWindow;
 
         public MainViewModel()
@@ -204,7 +192,7 @@ namespace mpDrawOrderByLayer
                     Layers.Add(new LayerItem { Name = ltr.Name });
                 }
             }
-            catch (System.Exception exception)
+            catch (Exception exception)
             {
                 ExceptionBox.Show(exception);
             }
@@ -265,7 +253,7 @@ namespace mpDrawOrderByLayer
 
         private void CheckIsEnableLoadLayersPosition()
         {
-            IsEnableLoadLayersPosition = ModPlus.Helpers.XDataHelpers.HasXDataDictionary(_mpLayersposition);
+            IsEnableLoadLayersPosition = ModPlus.Helpers.XDataHelpers.HasXDataDictionary(_mpLayersPosition);
         }
 
         #region Commands
@@ -404,10 +392,10 @@ namespace mpDrawOrderByLayer
             for (var i = 0; i < Layers.Count; i++)
             {
                 var layerItem = Layers[i];
-                ModPlus.Helpers.XDataHelpers.SetStringXData($"{_mpLayersposition}_{layerItem.Name}", $"{i}_{layerItem.Selected}");
+                ModPlus.Helpers.XDataHelpers.SetStringXData($"{_mpLayersPosition}_{layerItem.Name}", $"{i}_{layerItem.Selected}");
             }
 
-            ModPlus.Helpers.XDataHelpers.SetStringXData(_mpLayersposition, "no matter");
+            ModPlus.Helpers.XDataHelpers.SetStringXData(_mpLayersPosition, "no matter");
             CheckIsEnableLoadLayersPosition();
         }
 
@@ -421,7 +409,7 @@ namespace mpDrawOrderByLayer
                 List<LayerItem> notSavedLayers = new List<LayerItem>();
                 foreach (var layerItem in Layers)
                 {
-                    var key = $"{_mpLayersposition}_{layerItem.Name}";
+                    var key = $"{_mpLayersPosition}_{layerItem.Name}";
                     var value = ModPlus.Helpers.XDataHelpers.GetStringXData(key);
                     bool hasSaved = false;
                     if (!string.IsNullOrEmpty(value))
@@ -501,7 +489,7 @@ namespace mpDrawOrderByLayer
                     }
                 }
             }
-            catch (System.Exception exception)
+            catch (Exception exception)
             {
                 ExceptionBox.Show(exception);
             }
@@ -511,24 +499,28 @@ namespace mpDrawOrderByLayer
         {
             try
             {
-                if (e.DBObject is LayerTableRecord ltr)
+                if (e.DBObject is LayerTableRecord ltr && !e.DBObject.IsUndoing)
                 {
                     var doc = AcApp.DocumentManager.MdiActiveDocument;
                     var db = doc.Database;
                     var layersNames = new List<string>();
-                    using (var tr = db.TransactionManager.StartOpenCloseTransaction())
-                    {
-                        // Open the Layer table for read
-                        var acLyrTbl = tr.GetObject(db.LayerTableId, OpenMode.ForRead) as LayerTable;
-                        if (acLyrTbl != null)
-                        {
-                            foreach (var acObjId in acLyrTbl)
-                            {
-                                var acLyrTblRec = tr.GetObject(acObjId, OpenMode.ForRead) as LayerTableRecord;
 
-                                if (acLyrTblRec != null & acLyrTblRec?.IsDependent == false)
+                    using (doc.LockDocument())
+                    {
+                        using (var tr = db.TransactionManager.StartOpenCloseTransaction())
+                        {
+                            // Open the Layer table for read
+                            var acLyrTbl = tr.GetObject(db.LayerTableId, OpenMode.ForRead) as LayerTable;
+                            if (acLyrTbl != null)
+                            {
+                                foreach (var acObjId in acLyrTbl)
                                 {
-                                    layersNames.Add(acLyrTblRec.Name);
+                                    var acLyrTblRec = tr.GetObject(acObjId, OpenMode.ForRead) as LayerTableRecord;
+
+                                    if (acLyrTblRec != null & acLyrTblRec?.IsDependent == false)
+                                    {
+                                        layersNames.Add(acLyrTblRec.Name);
+                                    }
                                 }
                             }
                         }
@@ -544,7 +536,7 @@ namespace mpDrawOrderByLayer
                     AddLayerToLists(ltr);
                 }
             }
-            catch (System.Exception exception)
+            catch (Exception exception)
             {
                 ExceptionBox.Show(exception);
             }
@@ -569,7 +561,7 @@ namespace mpDrawOrderByLayer
         #endregion
     }
 
-    // Оработчики событий
+    // Обработчики событий
     public class DrawOrderByLayerEvents : IExtensionApplication
     {
         private const string LangItem = "mpDrawOrderByLayer";
@@ -748,7 +740,7 @@ namespace mpDrawOrderByLayer
                         ObjCol?.Clear();
                     }
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     ExceptionBox.Show(ex);
                 }

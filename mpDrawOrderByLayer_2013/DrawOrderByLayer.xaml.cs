@@ -1,13 +1,10 @@
-﻿using AcApp = Autodesk.AutoCAD.ApplicationServices.Core.Application;
-using System;
-using Autodesk.AutoCAD.Runtime;
-using System.Windows;
-using System.Windows.Input;
-using Autodesk.AutoCAD.Internal;
-using ModPlusAPI;
-
-namespace mpDrawOrderByLayer
+﻿namespace mpDrawOrderByLayer
 {
+    using System;
+    using System.Windows;
+    using System.Windows.Input;
+    using Autodesk.AutoCAD.Internal;
+
     public partial class DrawOrderByLayer
     {
         public DrawOrderByLayer()
@@ -40,35 +37,6 @@ namespace mpDrawOrderByLayer
         {
             if (e.Key == Key.Escape)
                 Close();
-        }
-    }
-
-    public class DrawOrderByLayerFunction
-    {
-        DrawOrderByLayer _drawOrderByLayer;
-
-        [CommandMethod("ModPlus", "MpDrawOrderByLayer", CommandFlags.Modal)]
-        public void StartFunction()
-        {
-            Statistic.SendCommandStarting(new ModPlusConnector());
-
-            if (_drawOrderByLayer == null)
-            {
-                _drawOrderByLayer = new DrawOrderByLayer();
-                var mainViewModel = new MainViewModel { ParentWindow = _drawOrderByLayer };
-                _drawOrderByLayer.DataContext = mainViewModel;
-                _drawOrderByLayer.Closed += window_Closed;
-            }
-            if (_drawOrderByLayer.IsLoaded)
-                _drawOrderByLayer.Activate();
-            else
-                AcApp.ShowModelessWindow(
-                    AcApp.MainWindow.Handle, _drawOrderByLayer);
-        }
-
-        private void window_Closed(object sender, EventArgs e)
-        {
-            _drawOrderByLayer = null;
         }
     }
 }

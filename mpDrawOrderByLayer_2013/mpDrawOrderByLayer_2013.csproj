@@ -73,6 +73,7 @@
     <Compile Include="DrawOrderByLayer.xaml.cs">
       <DependentUpon>DrawOrderByLayer.xaml</DependentUpon>
     </Compile>
+    <Compile Include="DrawOrderByLayerFunction.cs" />
     <Compile Include="ModPlusConnector.cs" />
     <Compile Include="MainViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
