@@ -1,19 +1,16 @@
 ﻿namespace mpDrawOrderByLayer
 {
-    using AcApp = Autodesk.AutoCAD.ApplicationServices.Core.Application;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.ComponentModel;
     using System.Linq;
-    using System.Runtime.CompilerServices;
     using System.Windows.Input;
     using Autodesk.AutoCAD.ApplicationServices;
     using Autodesk.AutoCAD.DatabaseServices;
     using Autodesk.AutoCAD.EditorInput;
-    using ModPlusAPI.Windows;
     using Autodesk.AutoCAD.Runtime;
-    using ModPlusAPI;
     using ModPlusAPI.Mvvm;
+    using ModPlusAPI.Windows;
+    using AcApp = Autodesk.AutoCAD.ApplicationServices.Core.Application;
 
     public class MainViewModel : VmBase
     {
@@ -29,8 +26,6 @@
         private LayerItem _upLayerName;
         private bool _upLayerWork;
 
-        public DrawOrderByLayer ParentWindow;
-
         public MainViewModel()
         {
             Layers = new ObservableCollection<LayerItem>();
@@ -42,6 +37,7 @@
             AcApp.DocumentManager.MdiActiveDocument.Database.ObjectModified += Database_ObjectModified;
             AcApp.DocumentManager.DocumentCreated += DocumentManager_DocumentCreated;
             AcApp.DocumentManager.DocumentActivated += DocumentManager_DocumentActivated;
+
             // commands
             ReverseListCommand = new RelayCommand(ReverseList);
             SelectAllCommand = new RelayCommand(SelectAll);
@@ -51,6 +47,8 @@
             SaveLayersPositionCommand = new RelayCommand(SaveLayersPosition);
             LoadLayersPositionCommand = new RelayCommand(LoadLayersPosition);
         }
+
+        public DrawOrderByLayer ParentWindow { get; set; }
 
         public ObservableCollection<LayerItem> Layers { get; set; }
 
@@ -146,7 +144,8 @@
             get => _isEnableLoadLayersPosition;
             set
             {
-                if (Equals(value, _isEnableLoadLayersPosition)) return;
+                if (Equals(value, _isEnableLoadLayersPosition))
+                    return;
                 _isEnableLoadLayersPosition = value;
                 OnPropertyChanged();
             }
@@ -182,7 +181,8 @@
                 var hasLayer = false;
                 foreach (var item in Layers)
                 {
-                    if (item.Name != ltr.Name) continue;
+                    if (item.Name != ltr.Name)
+                        continue;
                     hasLayer = true;
                     break;
                 }
@@ -206,8 +206,10 @@
             {
                 // Если такая запись существует, то проверяем состояние вкл/выкл
                 var doblaStatus = ModPlus.Helpers.XDataHelpers.GetStringXData(_dictionaryName);
+
                 // Если состояние вкл
                 AutoMove = doblaStatus.Equals("ON");
+
                 // Независимо от состояния проверяем и выставляем слои
                 // Слой "Вверх"
                 if (ModPlus.Helpers.XDataHelpers.HasXDataDictionary("MP_DOBLAuto_up"))
@@ -243,6 +245,7 @@
             {
                 // Если такой записи нет, убираем галочку с режима "Авто"
                 AutoMove = false;
+
                 // а в списках слоев выбираем первый слой (Слой по умолчанию)
                 UpLayerWork = false;
                 UpLayerName = Layers[0];
@@ -298,6 +301,7 @@
             // Получаем список имен слоев, которые отмечены
             var layers = Layers.Where(item => item.Selected).ToList();
             ProgressMaximum = layers.Count;
+
             // Если список слоев не пуст
             if (layers.Count > 0)
             {
@@ -559,215 +563,5 @@
         }
 
         #endregion
-    }
-
-    // Обработчики событий
-    public class DrawOrderByLayerEvents : IExtensionApplication
-    {
-        private const string LangItem = "mpDrawOrderByLayer";
-
-        // Переменная показывающая включена функция или нет
-        public static bool DoblaIsEventOn;
-        // Будем работать по принципу функции Автослои
-        // При добавлении объекта запоминать его
-        // При завершении команды перемещать слой
-
-        // Глобальная переменная с наборами
-        public ObjectIdCollection ObjCol; // = new ObjectIdCollection();
-
-        // Загрузка функции в автокад
-        public void Initialize()
-        {
-            // Подписываемся на событие создания чертежа (оно же - открытие)
-            AcApp.DocumentManager.DocumentCreated += DocumentManager_DocumentCreated;
-        }
-
-        public void Terminate()
-        {
-            // Ничего не нужно
-        }
-
-        // Включение
-        public void On()
-        {
-            ObjCol = new ObjectIdCollection();
-            DoblaIsEventOn = true;
-            AcApp.DocumentManager.MdiActiveDocument.Database.ObjectAppended += CallBack_ObjectAppended;
-            AcApp.DocumentManager.MdiActiveDocument.CommandEnded += CallBack_CommandEnded;
-            AcApp.DocumentManager.MdiActiveDocument.CommandCancelled += CallBack_CommandEnded;
-            AcApp.DocumentManager.MdiActiveDocument.CommandFailed += CallBack_CommandEnded;
-            AcApp.DocumentManager.DocumentActivated += DocumentManager_DocumentActivated;
-        }
-
-        // Отключение функции
-        public void Off()
-        {
-            ObjCol = null;
-            DoblaIsEventOn = false;
-            AcApp.DocumentManager.MdiActiveDocument.Database.ObjectAppended -= CallBack_ObjectAppended;
-            AcApp.DocumentManager.MdiActiveDocument.CommandEnded -= CallBack_CommandEnded;
-            AcApp.DocumentManager.MdiActiveDocument.CommandCancelled -= CallBack_CommandEnded;
-            AcApp.DocumentManager.MdiActiveDocument.CommandFailed -= CallBack_CommandEnded;
-        }
-
-        private void DocumentManager_DocumentCreated(object sender, DocumentCollectionEventArgs e)
-        {
-            AcApp.DocumentManager.MdiActiveDocument = e.Document;
-            // Проверяем запись о состоянии режима "Авто"
-            if (ModPlus.Helpers.XDataHelpers.HasXDataDictionary("MP_DOBLAuto"))
-            {
-                // Если такая запись существует, то проверяем состояние вкл/выкл
-                var doblaStatus = ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto");
-                // Если состояние вкл
-                if (doblaStatus.Equals("ON"))
-                    On();
-                else Off();
-            }
-        }
-
-        // Установка переменной в нужное значение в случае смены активного чертежа
-        // ReSharper disable once MemberCanBeMadeStatic.Local
-        private void DocumentManager_DocumentActivated(object sender, DocumentCollectionEventArgs e)
-        {
-            DoblaIsEventOn = ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto").Equals("ON");
-        }
-
-        // Обработка события добавления объекта в базу чертежа
-        private void CallBack_ObjectAppended(object sender, ObjectEventArgs e)
-        {
-            if (DoblaIsEventOn)
-            {
-                var doc = AcApp.DocumentManager.MdiActiveDocument;
-                var db = doc.Database;
-                if (e.DBObject.OwnerId == db.CurrentSpaceId &&
-                    !e.DBObject.IsErased &&
-                    e.DBObject.ObjectId != ObjectId.Null)
-                {
-                    try
-                    {
-                        if (ObjCol == null) ObjCol = new ObjectIdCollection();
-                        ObjCol.Add(e.DBObject.ObjectId);
-                    }
-                    catch
-                    {
-                        // ignored
-                    }
-                }
-            }
-        }
-
-        // Обработка события завершения команды автокада
-        public void CallBack_CommandEnded(object sender, CommandEventArgs e)
-        {
-            if (DoblaIsEventOn)
-            {
-                var doc = AcApp.DocumentManager.MdiActiveDocument;
-                var db = doc.Database;
-                var ed = doc.Editor;
-                try
-                {
-                    // Исключаем из обработки команды:
-                    if (e.GlobalCommandName.ToUpper() != "COPY" && // Копировать
-                        e.GlobalCommandName.ToUpper() != "UNDO" && // Отменить
-                        e.GlobalCommandName.ToUpper() != "ERASE" && // Стереть
-                        e.GlobalCommandName.ToUpper() != "LAYOUT" && // Переход на лист
-                        e.GlobalCommandName.ToUpper() != "MODEL" && // Переход на модель
-                        e.GlobalCommandName.ToUpper() != "PASTECLIP" && // Вставить 
-                        e.GlobalCommandName.ToUpper() != "PASTEBLOCK" && // Вставить как блок
-                        e.GlobalCommandName.ToUpper() != "CUTCLIP" && // Вырезать
-                        e.GlobalCommandName.ToUpper() != "MPMULTICOPY" && // Мультикопирование
-                        e.GlobalCommandName.ToUpper() != "MPTXTNUMCOPY" && // Копирование с нумирацией
-                        e.GlobalCommandName.ToUpper() != "EXPORTLAYOUT" && // Экспорт листа в модель
-                        e.GlobalCommandName.ToUpper() != "EATTEDIT" && //редактирование атрибутов
-                        e.GlobalCommandName.ToUpper() != "BEDIT" // редактирование блока
-                    )
-                    {
-                        if (ObjCol != null && ObjCol.Count > 0)
-                        {
-                            using (doc.LockDocument())
-                            {
-                                using (var tr = db.TransactionManager.StartTransaction())
-                                {
-                                    foreach (ObjectId objId in ObjCol)
-                                    {
-                                        try
-                                        {
-                                            var ent = tr.GetObject(objId, OpenMode.ForWrite) as Entity;
-                                            if (ent != null && ent.OwnerId == db.CurrentSpaceId && !ent.IsErased && ent.ObjectId != ObjectId.Null)
-                                            {
-                                                var btr = tr.GetObject(db.CurrentSpaceId, OpenMode.ForWrite) as BlockTableRecord;
-                                                if (btr != null)
-                                                {
-                                                    var dot = tr.GetObject(btr.DrawOrderTableId, OpenMode.ForWrite) as DrawOrderTable;
-                                                    var curLay = ent.Layer;
-                                                    if (ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto_up").Equals("ON"))
-                                                    {
-                                                        if (ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto_up_layer").Equals(curLay))
-                                                        {
-                                                            dot?.MoveToTop(new ObjectIdCollection(new[] { ent.ObjectId }));
-                                                            ed.WriteMessage("\n" + Language.GetItem(LangItem, "h10") +
-                                                                            " " + "\"" + curLay + "\" " + Language.GetItem(LangItem, "h11"));
-                                                        }
-                                                    }
-
-                                                    if (ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto_down").Equals("ON"))
-                                                    {
-                                                        if (ModPlus.Helpers.XDataHelpers.GetStringXData("MP_DOBLAuto_down_layer").Equals(curLay))
-                                                        {
-                                                            dot?.MoveToBottom(new ObjectIdCollection(new[] { ent.ObjectId }));
-                                                            ed.WriteMessage("\n" + Language.GetItem(LangItem, "h10") +
-                                                                            " " + "\"" + curLay + "\" " + Language.GetItem(LangItem, "h12"));
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        catch
-                                        {
-                                            // ignored
-                                        }
-                                    } // foreach
-
-                                    tr.Commit();
-                                }
-                            }
-                        } // if
-
-                        ObjCol?.Clear();
-                    }
-                    else
-                    {
-                        ObjCol?.Clear();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    ExceptionBox.Show(ex);
-                }
-            }
-        }
-    }
-
-    public class LayerItem : INotifyPropertyChanged
-    {
-        private bool _selected;
-        public string Name { get; set; }
-
-        public bool Selected
-        {
-            get => _selected;
-            set
-            {
-                _selected = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 }

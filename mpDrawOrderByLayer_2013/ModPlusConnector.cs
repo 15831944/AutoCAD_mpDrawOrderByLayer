@@ -1,14 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using ModPlusAPI.Interfaces;
-
+﻿#pragma warning disable SA1600 // Elements should be documented
 namespace mpDrawOrderByLayer
 {
+    using System;
+    using System.Collections.Generic;
+    using ModPlusAPI.Interfaces;
+
     public class ModPlusConnector : IModPlusFunctionInterface
     {
         public SupportedProduct SupportedProduct => SupportedProduct.AutoCAD;
         
         public string Name => "mpDrawOrderByLayer";
+
 #if A2013
         public string AvailProductExternalVersion => "2013";
 #elif A2014
@@ -34,7 +36,7 @@ namespace mpDrawOrderByLayer
         
         public string LName => "Порядок по слою";
         
-        public string Description => "Функция служит для изменения порядка прорисовки согласно слоям";
+        public string Description => "Плагин служит для изменения порядка прорисовки согласно слоям";
         
         public string Author => "Пекшев Александр aka Modis";
         
@@ -42,7 +44,7 @@ namespace mpDrawOrderByLayer
         
         public bool CanAddToRibbon => true;
         
-        public string FullDescription => "Функция обрабатывает слои, отмеченные в окне галочками, изменяя порядок прорисовки согласно порядку отмеченных слоев. Присутствует режим «Авто», который автоматически меняет порядок прорисовки объектов на одном из двух указанных слоев при создании или редактировании";
+        public string FullDescription => "Плагин обрабатывает слои, отмеченные в окне галочками, изменяя порядок прорисовки согласно порядку отмеченных слоев. Присутствует режим «Авто», который автоматически меняет порядок прорисовки объектов на одном из двух указанных слоев при создании или редактировании";
         
         public string ToolTipHelpImage => string.Empty;
         
@@ -59,3 +61,4 @@ namespace mpDrawOrderByLayer
         public List<string> SubClassNames => new List<string>();
     }
 }
+#pragma warning restore SA1600 // Elements should be documented

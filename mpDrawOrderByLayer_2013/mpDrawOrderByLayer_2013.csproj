@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <CodeAnalysisRuleSet>$(SolutionDir)\ModPlus.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="accoremgd">
       <HintPath>C:\_Acad dlls\2013\accoremgd.dll</HintPath>
@@ -73,7 +76,9 @@
     <Compile Include="DrawOrderByLayer.xaml.cs">
       <DependentUpon>DrawOrderByLayer.xaml</DependentUpon>
     </Compile>
+    <Compile Include="DrawOrderByLayerEvents.cs" />
     <Compile Include="DrawOrderByLayerFunction.cs" />
+    <Compile Include="LayerItem.cs" />
     <Compile Include="ModPlusConnector.cs" />
     <Compile Include="MainViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -89,6 +94,13 @@
     <Resource Include="Resources\mpDrawOrderByLayer_16x16_dark.png" />
     <Resource Include="Resources\mpDrawOrderByLayer_32x32.png" />
     <Resource Include="Resources\mpDrawOrderByLayer_32x32_dark.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
